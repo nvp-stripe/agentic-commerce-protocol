@@ -1,10 +1,14 @@
 # Unreleased Changes
 
-## Bug Fixes
+## Version 2025-12-11
 
-### Fix Fulfillment Amount Types in OpenAPI Specification
+### Bug Fixes
+
+#### Fix Fulfillment Amount Types in OpenAPI Specification
 
 **Fixed inconsistency in OpenAPI spec where fulfillment option amounts were incorrectly typed as strings instead of integers.**
+
+**Version Note:** Per CONTRIBUTING.md guidelines, the specification version has been incremented from `2025-09-29` to `2025-12-11` to reflect this schema change. While this is technically a bug fix/clarification (not a breaking change), we increment the version conservatively for any OpenAPI schema modifications to ensure proper tracking and avoid confusion.
 
 In the OpenAPI specification (`spec/openapi/openapi.agentic_checkout.yaml`), the `subtotal`, `tax`, and `total` fields in both `FulfillmentOptionShipping` and `FulfillmentOptionDigital` schemas were defined as `type: string`. This was inconsistent with:
 
