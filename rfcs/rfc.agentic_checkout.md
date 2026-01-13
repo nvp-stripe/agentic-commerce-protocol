@@ -1,11 +1,7 @@
 # RFC: Agentic Checkout — Merchant REST API
 
 **Status:** Draft  
-<<<<<<< HEAD
-**Version:** 2025-12-11  
-=======
 **Version:** 2025-12-12  
->>>>>>> 18aaf70 (fullfillment details changes)
 **Scope:** Checkout session lifecycle and webhook integration
 
 This RFC defines the **Agentic Checkout Specification (ACS)**, a standardized REST API contract that merchants SHOULD implement to support experiences across agent platforms.
@@ -20,11 +16,7 @@ This specification ensures that:
 
 ## 1. Scope & Goals
 
-<<<<<<< HEAD
-- Provide a **stable, versioned** API surface (`API-Version: 2025-12-11`) that ChatGPT calls to create, update, retrieve, complete, and cancel checkout sessions.
-=======
 - Provide a **stable, versioned** API surface (`API-Version: 2025-12-12`) that ChatGPT calls to create, update, retrieve, complete, and cancel checkout sessions.
->>>>>>> 18aaf70 (fullfillment details changes)
 - Ensure ChatGPT renders an **authoritative cart state** on every response.
 - Keep **payments on merchant rails**; optional delegated payments are covered separately.
 - Support **safe retries** via idempotency and **strong security** via authentication and request signing.
@@ -41,11 +33,7 @@ The key words **MUST**, **MUST NOT**, **SHOULD**, **MAY** follow RFC 2119/8174.
 
 ### 2.1 Initialization
 
-<<<<<<< HEAD
-- **Versioning:** Client (ChatGPT) **MUST** send `API-Version`. Server **MUST** validate support (e.g., `2025-12-11`).
-=======
 - **Versioning:** Client (ChatGPT) **MUST** send `API-Version`. Server **MUST** validate support (e.g., `2025-12-12`).
->>>>>>> 18aaf70 (fullfillment details changes)
 - **Identity/Signing:** Server **SHOULD** publish acceptable signature algorithms out‑of‑band; client **SHOULD** sign requests (`Signature`) over canonical JSON with an accompanying `Timestamp` (RFC 3339).
 - **Capabilities:** Merchant **SHOULD** document accepted payment methods (e.g., `card`) and fulfillment types (`shipping`, `digital`).
 
@@ -79,11 +67,7 @@ All endpoints **MUST** use HTTPS and return JSON. Amounts **MUST** be integers i
 - `Request-Id: <string>` (**RECOMMENDED**)
 - `Signature: <base64url>` (**RECOMMENDED**)
 - `Timestamp: <RFC3339>` (**RECOMMENDED**)
-<<<<<<< HEAD
-- `API-Version: 2025-12-11` (**REQUIRED**)
-=======
 - `API-Version: 2025-12-12` (**REQUIRED**)
->>>>>>> 18aaf70 (fullfillment details changes)
 
 **Response Headers:**
 
@@ -629,11 +613,7 @@ All money fields are **integers (minor units)**.
 
 ## 10. Conformance Checklist
 
-<<<<<<< HEAD
-- [ ] Enforces HTTPS, JSON, and `API-Version: 2025-12-11`
-=======
 - [ ] Enforces HTTPS, JSON, and `API-Version: 2025-12-12`
->>>>>>> 18aaf70 (fullfillment details changes)
 - [ ] Returns **authoritative** cart state on every response
 - [ ] Uses **integer** minor units for all monetary amounts
 - [ ] Implements create, update (POST), retrieve (GET), complete, cancel
