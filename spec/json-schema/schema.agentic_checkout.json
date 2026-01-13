@@ -45,7 +45,7 @@
         "name": {
           "type": "string"
         },
-        "phone": {
+        "phone_number": {
           "type": "string"
         },
         "email": {
@@ -664,9 +664,6 @@
         },
         "payment_data": {
           "$ref": "#/$defs/PaymentData"
-        },
-        "shipping_address": {
-          "$ref": "#/$defs/Address"
         }
       },
       "required": ["payment_data"]

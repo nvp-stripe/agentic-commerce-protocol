@@ -57,7 +57,7 @@ paths:
                       quantity: 1
                   fulfillment_details:
                     name: "test"
-                    phone: "15551234567"
+                    phone_number: "15551234567"
                     email: "test@example.com"
                     address:
                       name: "test"
@@ -325,7 +325,7 @@ components:
       additionalProperties: false
       properties:
         name: { type: string }
-        phone: { type: string }
+        phone_number: { type: string }
         email: { type: string, format: email }
         address: { $ref: "#/components/schemas/Address" }
 
@@ -663,7 +663,6 @@ components:
       properties:
         buyer: { $ref: "#/components/schemas/Buyer" }
         payment_data: { $ref: "#/components/schemas/PaymentData" }
-        shipping_address: { $ref: "#/components/schemas/Address" }
       required: [payment_data]
 
     IntentTrace:

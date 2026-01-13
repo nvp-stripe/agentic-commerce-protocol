@@ -8,7 +8,7 @@
     ],
     "fulfillment_details": {
       "name": "John Doe",
-      "phone": "15551234567",
+      "phone_number": "15551234567",
       "email": "johndoe@example.com",
       "address": {
         "name": "John Doe",
@@ -69,7 +69,7 @@
     ],
     "fulfillment_details": {
       "name": "John Doe",
-      "phone": "15551234567",
+      "phone_number": "15551234567",
       "email": "johndoe@example.com",
       "address": {
         "name": "John Doe",
@@ -192,7 +192,7 @@
     ],
     "fulfillment_details": {
       "name": "John Doe",
-      "phone": "15551234567",
+      "phone_number": "15551234567",
       "email": "johndoe@example.com",
       "address": {
         "name": "John Doe",
@@ -297,15 +297,6 @@
         "country": "US",
         "postal_code": "94131"
       }
-    },
-    "shipping_address": {
-      "name": "John Smith",
-      "line_one": "1234 Chat Road,",
-      "line_two": "",
-      "city": "San Francisco",
-      "state": "CA",
-      "country": "US",
-      "postal_code": "94131"
     }
   },
   "complete_checkout_session_response": {
@@ -343,7 +334,7 @@
     ],
     "fulfillment_details": {
       "name": "John Doe",
-      "phone": "15551234567",
+      "phone_number": "15551234567",
       "email": "johndoe@example.com",
       "address": {
         "name": "John Doe",
@@ -454,7 +445,7 @@
     ],
     "fulfillment_details": {
       "name": "John Doe",
-      "phone": "15551234567",
+      "phone_number": "15551234567",
       "email": "johndoe@example.com",
       "address": {
         "name": "John Doe",
@@ -580,7 +571,7 @@
     ],
     "fulfillment_details": {
       "name": "John Doe",
-      "phone": "15551234567",
+      "phone_number": "15551234567",
       "email": "johndoe@example.com",
       "address": {
         "name": "John Doe",

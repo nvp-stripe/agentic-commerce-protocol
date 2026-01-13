@@ -123,7 +123,7 @@ Where `type` ∈ `invalid_request | request_not_idempotent | processing_error | 
   },
   "fulfillment_details": {
     "name": "John Smith",
-    "phone": "15551234567",
+    "phone_number": "15551234567",
     "email": "john@example.com",
     "address": {
       "name": "John Smith",
@@ -166,7 +166,7 @@ Returns the full authoritative session state.
 ### 4.4 Complete Session
 
 `POST /checkout_sessions/{checkout_session_id}/complete` → **200 OK** on success  
-Body includes `payment_data` (e.g., delegated token + optional billing address), optional `buyer`, and optional `shipping_address` (for tax computation).  
+Body includes `payment_data` (e.g., delegated token + optional billing address) and optional `buyer`.  
 Response **MUST** include `status: completed` and an `order` with `id`, `checkout_session_id`, and `permalink_url`.
 
 ### 4.5 Cancel Session
@@ -244,7 +244,7 @@ All money fields are **integers (minor units)**.
   "items": [{ "id": "item_456", "quantity": 1 }],
   "fulfillment_details": {
     "name": "test",
-    "phone": "15551234567",
+    "phone_number": "15551234567",
     "email": "test@example.com",
     "address": {
       "name": "test",
@@ -283,7 +283,7 @@ All money fields are **integers (minor units)**.
   ],
   "fulfillment_details": {
     "name": "test",
-    "phone": "15551234567",
+    "phone_number": "15551234567",
     "email": "test@example.com",
     "address": {
       "name": "test",
@@ -387,7 +387,7 @@ All money fields are **integers (minor units)**.
   ],
   "fulfillment_details": {
     "name": "test",
-    "phone": "15551234567",
+    "phone_number": "15551234567",
     "email": "test@example.com",
     "address": {
       "name": "test",
@@ -477,15 +477,6 @@ All money fields are **integers (minor units)**.
       "country": "US",
       "postal_code": "94131"
     }
-  },
-  "shipping_address": {
-    "name": "test",
-    "line_one": "1234 Chat Road",
-    "line_two": "",
-    "city": "San Francisco",
-    "state": "CA",
-    "country": "US",
-    "postal_code": "94131"
   }
 }
 ```
@@ -516,7 +507,7 @@ All money fields are **integers (minor units)**.
   ],
   "fulfillment_details": {
     "name": "test",
-    "phone": "15551234567",
+    "phone_number": "15551234567",
     "email": "test@example.com",
     "address": {
       "name": "test",
@@ -658,11 +649,10 @@ All money fields are **integers (minor units)**.
 
 ## 11. Change Log
 
-- **2025-12-12**: Breaking changes for v2:
-  - Renamed `fulfillment_address` to `fulfillment_details` with nested structure (`name`, `phone`, `email`, `address`)
+- **2026-01-12**: Breaking changes for v2:
+  - Renamed `fulfillment_address` to `fulfillment_details` with nested structure (`name`, `phone_number`, `email`, `address`)
   - Replaced `fulfillment_option_id` with `selected_fulfillment_options[]` array supporting multiple selections and item mappings
   - Made `subtotal` and `tax` optional in `FulfillmentOption` (both shipping and digital)
   - Added `selected_fulfillment_options` to `UpdateCheckoutRequest`
-  - Added optional `shipping_address` to `CompleteCheckoutRequest` for tax computation
   - Added `order` details to complete response (already present but now explicitly documented)
 - **2025-09-12**: Initial draft; clarified **integer amount** requirement; separated webhooks into dedicated spec.

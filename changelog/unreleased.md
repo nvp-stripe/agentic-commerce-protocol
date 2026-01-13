@@ -50,7 +50,7 @@ This release introduces several breaking changes to the Agentic Commerce Protoco
 
 **Change:**
 - Old structure: Flat `fulfillment_address` object with address fields only
-- New structure: Nested `fulfillment_details` object with optional `name`, `phone`, `email`, and nested `address` object
+- New structure: Nested `fulfillment_details` object with optional `name`, `phone_number`, `email`, and nested `address` object
 
 **Migration:**
 ```json
@@ -70,7 +70,7 @@ This release introduces several breaking changes to the Agentic Commerce Protoco
 {
   "fulfillment_details": {
     "name": "John Doe",
-    "phone": "15551234567",
+    "phone_number": "15551234567",
     "email": "john@example.com",
     "address": {
       "name": "John Doe",
@@ -156,33 +156,7 @@ This release introduces several breaking changes to the Agentic Commerce Protoco
 
 **Migration:** See migration example in #2 above.
 
-### 5. Added optional `shipping_address` to CompleteCheckout request
-
-**Impact:** `CheckoutSessionCompleteRequest` schema
-
-**Change:**
-- New optional field `shipping_address` for tax computation on turnkey/on-stripe sellers
-
-**Migration:**
-```json
-// NEW - optional shipping_address field
-{
-  "buyer": { ... },
-  "payment_data": { ... },
-  "shipping_address": {
-    "name": "John Doe",
-    "line_one": "123 Main St",
-    "city": "San Francisco",
-    "state": "CA",
-    "country": "US",
-    "postal_code": "94102"
-  }
-}
-```
-
-**Rationale:** Supports tax computation at checkout time for sellers that need accurate shipping address before finalizing the order.
-
-### 6. Order details in complete response
+### 5. Order details in complete response
 
 **Impact:** `CheckoutSessionWithOrder` response schema
 
@@ -195,7 +169,7 @@ This release introduces several breaking changes to the Agentic Commerce Protoco
 
 ## Version Compatibility
 
-- Clients MUST send `API-Version: 2025-12-12` header
+- Clients MUST send `API-Version: 2026-01-12` header
 - Previous version `2025-09-29` is deprecated
 - All changes are breaking and require client updates
 
