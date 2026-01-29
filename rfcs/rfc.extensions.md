@@ -6,8 +6,9 @@
 
 This RFC defines the **ACP Extensions Framework**, a mechanism that enables
 merchants to advertise and platforms to discover optional capabilities that
-extend the core checkout specification. The first extension defined under this
-framework is the **Discount Extension**.
+extend the core checkout specification. Extensions integrate with the existing
+capability negotiation system. The first extension defined under this framework
+is the **Discount Extension**.
 
 ---
 
@@ -15,10 +16,10 @@ framework is the **Discount Extension**.
 
 - Provide a **standardized extension mechanism** for ACP that enables optional
   capabilities without breaking backward compatibility.
-- Enable **capability discovery** so platforms can determine what extensions a
-  merchant supports.
-- Adopt **industry-standard patterns** for capability discovery and schema
-  composition.
+- Integrate with the existing **capability negotiation** pattern, using
+  `agent_capabilities` and `seller_capabilities` for discovery.
+- Enable **schema clarity** so platforms know which parts of the API each
+  extension affects.
 - Define a **Discount Extension** as the first implementation, delivering
   rich discount and promotion support.
 
@@ -39,8 +40,16 @@ This framework introduces a formal extension mechanism for ACP. It provides
 standardized patterns for:
 
 - Merchants to **advertise** which optional capabilities they support
-- Platforms to **discover and negotiate** capabilities
+- Platforms to **discover and negotiate** capabilities before checkout
 - New capabilities to be **added composably** without modifying the core specification
+
+### 2.2 Integration with Capability Negotiation
+
+Extensions integrate with the existing capability negotiation system (see
+[Capability Negotiation](../examples/2026-01-16/examples.capability_negotiation.json)):
+
+- Agents declare supported extensions in `agent_capabilities.extensions`
+- Merchants respond with active extensions in `seller_capabilities.extensions`
 
 ### 2.3 Discount Extension
 
@@ -53,36 +62,79 @@ The Discount Extension enhances the existing `coupons` array with:
 
 ---
 
-## 3. Protocol Extension Mechanism
+## 3. Extension Declaration
 
-### 3.1 Extension Declaration
+### 3.1 Seller Capabilities
 
-Merchants advertise extension support in the checkout response via a `protocol`
-object:
+Merchants advertise extension support in the checkout response via the
+`seller_capabilities.extensions` array:
 
 ```json
 {
   "id": "checkout_session_123",
-  "protocol": {
-    "version": "2026-01-27",
-    "extensions": ["discount"]
-  },
   "status": "ready_for_payment",
-  ...
+  "seller_capabilities": {
+    "payment_methods": ["card"],
+    "extensions": [
+      {
+        "name": "discount",
+        "extends": ["checkout.request", "checkout.response"]
+      }
+    ]
+  }
 }
 ```
 
-### 3.2 Protocol Object
+### 3.2 Agent Capabilities
+
+Agents **MAY** indicate which extensions they support in the request:
+
+```json
+{
+  "line_items": [{"id": "item_123", "quantity": 1}],
+  "agent_capabilities": {
+    "extensions": ["discount", "loyalty"]
+  }
+}
+```
+
+When an agent declares supported extensions, merchants **SHOULD** activate
+those extensions if available.
+
+### 3.3 Extension Object
+
+Each extension in `seller_capabilities.extensions` is an object:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `version` | string | Yes | ACP protocol version (YYYY-MM-DD format) |
-| `extensions` | array | No | List of active extension identifiers |
+| `name` | string | Yes | Unique identifier for the extension |
+| `extends` | string[] | No | Which parts of the API this extension affects |
+| `schema` | string | No | URL to the extension's JSON Schema |
+| `spec` | string | No | URL to the extension's specification document |
 
-### 3.3 Extension Identifiers
+### 3.4 The `extends` Field
 
-Extension identifiers are lowercase strings that uniquely identify an
-extension. Core ACP extensions use simple names:
+The `extends` array clarifies which parts of the request/response are affected:
+
+| Value | Description |
+|-------|-------------|
+| `checkout.request` | Adds fields to create/update checkout request body |
+| `checkout.response` | Adds fields to checkout session response body |
+| `checkout.complete.request` | Adds fields to complete checkout request |
+| `checkout.complete.response` | Adds fields to complete checkout response |
+
+**Example:** The discount extension affects both requests and responses:
+
+```json
+{
+  "name": "discount",
+  "extends": ["checkout.request", "checkout.response"]
+}
+```
+
+### 3.5 Extension Identifiers
+
+Extension identifiers are lowercase strings. Core ACP extensions use simple names:
 
 | Extension | Identifier | Description |
 |-----------|------------|-------------|
@@ -95,33 +147,50 @@ Third-party extensions **SHOULD** use reverse-domain naming to avoid conflicts:
 
 ```json
 {
-  "extensions": ["discount", "com.example.custom-extension"]
+  "extensions": [
+    {"name": "discount"},
+    {"name": "com.example.custom-extension", "schema": "https://example.com/schema.json"}
+  ]
 }
 ```
 
-### 3.4 Extension Negotiation
+---
 
-1. **Platform Request**: Platform sends checkout request. Platform **MAY**
-   indicate preferred extensions via `Accept-Extensions` header.
+## 4. Extension Negotiation
 
-2. **Merchant Response**: Merchant includes `protocol.extensions` array listing
-   active extensions for this session.
+Extension negotiation follows the same pattern as capability negotiation:
 
-3. **Schema Resolution**: Platform interprets response using base schema
+```mermaid
+sequenceDiagram
+    participant Agent
+    participant Merchant
+    
+    Agent->>Merchant: POST /checkout_sessions<br/>agent_capabilities.extensions: ["discount"]
+    Merchant->>Agent: 201 Created<br/>seller_capabilities.extensions: [{name: "discount", extends: [...]}]
+    Note over Agent: Agent now knows discount<br/>extension is active
+```
+
+1. **Agent Request**: Agent sends `agent_capabilities.extensions` listing
+   extensions it understands.
+
+2. **Merchant Response**: Merchant includes `seller_capabilities.extensions`
+   with active extension objects for this session.
+
+3. **Schema Resolution**: Agent interprets response using base schema
    composed with active extension schemas.
 
-### 3.5 Backward Compatibility
+### 4.1 Backward Compatibility
 
-- The `protocol` object is **OPTIONAL** in responses
-- Merchants not supporting extensions omit the `protocol` object
-- Platforms **MUST** handle responses with or without `protocol`
+- The `extensions` array in `seller_capabilities` is **OPTIONAL**
+- Merchants not supporting extensions omit the array
+- Agents **MUST** handle responses with or without extensions
 - Extension-specific fields are ignored by clients that don't support them
 
 ---
 
-## 4. Extension Schema Composition
+## 5. Extension Schema Composition
 
-### 4.1 Pattern
+### 5.1 Pattern
 
 Extensions add fields to the base checkout schema using JSON Schema
 composition. Each extension defines:
@@ -130,7 +199,7 @@ composition. Each extension defines:
 2. **New types** used by those fields
 3. **Error codes** for extension-specific messages
 
-### 4.2 Example: Discount Extension
+### 5.2 Example: Discount Extension
 
 The discount extension adds a `discounts` object to the checkout:
 
@@ -154,42 +223,12 @@ The discount extension adds a `discounts` object to the checkout:
 }
 ```
 
-### 4.3 Composition Rules
+### 5.3 Composition Rules
 
 - Extensions **MUST NOT** modify existing required fields
 - Extensions **MUST NOT** change the semantics of existing fields
 - Extensions **MAY** add new optional fields to the checkout object
 - Extensions **MAY** add new values to the `messages[].code` enum
-
----
-
-## 5. Request Headers
-
-### 5.1 Accept-Extensions Header
-
-Platforms **MAY** indicate preferred extensions:
-
-```http
-POST /checkout_sessions HTTP/1.1
-Accept-Extensions: discount, fulfillment
-Content-Type: application/json
-```
-
-Merchants **SHOULD** activate requested extensions if supported. This header is
-**OPTIONAL**; merchants may activate extensions based on their own logic.
-
-### 5.2 Response Headers
-
-Merchants **MAY** include active extensions in response headers:
-
-```http
-HTTP/1.1 201 Created
-Content-Type: application/json
-ACP-Extensions: discount
-```
-
-This is informational; the `protocol.extensions` array in the response body is
-authoritative.
 
 ---
 
@@ -214,9 +253,10 @@ use the same YYYY-MM-DD format:
 
 ```json
 {
-  "protocol": {
-    "version": "2026-01-27",
-    "extensions": ["discount@2026-01-27"]
+  "seller_capabilities": {
+    "extensions": [
+      {"name": "discount@2026-01-27", "extends": ["checkout.request", "checkout.response"]}
+    ]
   }
 }
 ```
@@ -245,18 +285,18 @@ See the following files for the reference implementation:
 
 ---
 
-## 10. Conformance Checklist
+## 9. Conformance Checklist
 
-- [ ] Supports `protocol` object in checkout responses
-- [ ] Lists active extensions in `protocol.extensions` array
-- [ ] Handles `Accept-Extensions` header (optional)
+- [ ] Supports `seller_capabilities.extensions` array in checkout responses
+- [ ] Returns extension objects with `name` and optional `extends` field
+- [ ] Handles `agent_capabilities.extensions` in requests (optional)
 - [ ] Ignores unknown extension fields gracefully
 - [ ] Validates extension-specific inputs
 - [ ] Returns extension-specific error codes in `messages[]`
 
 ---
 
-## 11. Change Log
+## 10. Change Log
 
 - **2026-01-27**: Initial draft defining extensions framework
 

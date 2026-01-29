@@ -38,9 +38,10 @@ Complex example showing multiple discounts stacked together with:
 
 ```json
 {
-  "protocol": {
-    "version": "2026-01-27",
-    "extensions": ["discount"]
+  "seller_capabilities": {
+    "extensions": [
+      {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
+    ]
   },
   "discounts": {
     "codes": ["DISCOUNT_CODE_1", "DISCOUNT_CODE_2"],

@@ -2,60 +2,83 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agentic-commerce-protocol.com/schemas/extension.json",
   "title": "ACP Extension Schema",
-  "description": "Schema definitions for the ACP Extensions Framework. Extensions are optional, composable capabilities that augment the core checkout specification.",
+  "description": "Schema definitions for the ACP Extensions Framework. Extensions are optional, composable capabilities declared in seller_capabilities.extensions.",
 
   "$defs": {
     "extension_identifier": {
       "type": "string",
-      "pattern": "^[a-z][a-z0-9_-]*$|^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9_-]*)+$",
-      "description": "Extension identifier. Core extensions use simple names (e.g., 'discount'). Third-party extensions use reverse-domain naming (e.g., 'com.example.custom')."
-    },
-
-    "extension_version": {
-      "type": "string",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-      "description": "Extension version in YYYY-MM-DD format."
-    },
-
-    "versioned_extension": {
-      "type": "string",
       "pattern": "^[a-z][a-z0-9_-]*(@\\d{4}-\\d{2}-\\d{2})?$|^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9_-]*)+(@\\d{4}-\\d{2}-\\d{2})?$",
-      "description": "Extension identifier with optional version suffix (e.g., 'discount@2026-01-27')."
+      "description": "Extension identifier. Core extensions use simple names (e.g., 'discount'). Third-party extensions use reverse-domain naming (e.g., 'com.example.custom'). May include optional version suffix (e.g., 'discount@2026-01-27')."
     },
 
-    "protocol": {
+    "extends_target": {
+      "type": "string",
+      "enum": [
+        "checkout.request",
+        "checkout.response",
+        "checkout.complete.request",
+        "checkout.complete.response"
+      ],
+      "description": "Identifies which part of the API the extension affects."
+    },
+
+    "extension_declaration": {
       "type": "object",
-      "description": "Protocol metadata included in checkout responses. Indicates the ACP version and active extensions.",
-      "required": ["version"],
+      "description": "Extension declaration in seller_capabilities.extensions. Describes an active extension and which API surfaces it affects.",
+      "required": ["name"],
       "properties": {
-        "version": {
-          "$ref": "#/$defs/extension_version",
-          "description": "ACP protocol version in YYYY-MM-DD format."
+        "name": {
+          "$ref": "#/$defs/extension_identifier",
+          "description": "Unique identifier for the extension."
         },
-        "extensions": {
+        "extends": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/versioned_extension"
+            "$ref": "#/$defs/extends_target"
           },
           "uniqueItems": true,
-          "description": "List of active extension identifiers for this session. May include version suffix."
+          "description": "Which parts of the API this extension affects (e.g., checkout.request, checkout.response)."
+        },
+        "schema": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the extension's JSON Schema definition."
+        },
+        "spec": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the extension's specification document."
         }
       },
       "additionalProperties": false
     },
 
+    "agent_extensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/extension_identifier"
+      },
+      "uniqueItems": true,
+      "description": "Extensions the agent understands. Sent in agent_capabilities.extensions."
+    },
+
+    "seller_extensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/extension_declaration"
+      },
+      "uniqueItems": true,
+      "description": "Active extensions for this session. Returned in seller_capabilities.extensions."
+    },
+
     "extension_metadata": {
       "type": "object",
-      "description": "Metadata about an extension for discovery and documentation.",
-      "required": ["id", "version", "name"],
+      "description": "Full metadata about an extension for documentation and discovery.",
+      "required": ["id", "name"],
       "properties": {
         "id": {
           "$ref": "#/$defs/extension_identifier",
           "description": "Unique identifier for the extension."
-        },
-        "version": {
-          "$ref": "#/$defs/extension_version",
-          "description": "Current version of the extension."
         },
         "name": {
           "type": "string",
@@ -64,6 +87,13 @@
         "description": {
           "type": "string",
           "description": "Brief description of what the extension provides."
+        },
+        "extends": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/extends_target"
+          },
+          "description": "Which parts of the API this extension affects."
         },
         "spec": {
           "type": "string",
@@ -103,7 +133,10 @@
               "properties": {
                 "id": { "const": "discount" },
                 "name": { "const": "Discount Extension" },
-                "description": { "const": "Discount code support with rich applied discounts, allocation details, and rejection messaging." }
+                "description": { "const": "Discount code support with rich applied discounts, allocation details, and rejection messaging." },
+                "extends": {
+                  "const": ["checkout.request", "checkout.response"]
+                }
               }
             }
           ]
@@ -112,4 +145,3 @@
     }
   }
 }
-

@@ -49,16 +49,26 @@ This extension introduces:
 
 ## 3. Extension Declaration
 
-Merchants advertise discount support in the checkout response:
+Merchants advertise discount support via the `seller_capabilities.extensions`
+array in checkout responses:
 
 ```json
 {
-  "protocol": {
-    "version": "2026-01-27",
-    "extensions": ["discount"]
+  "seller_capabilities": {
+    "payment_methods": ["card"],
+    "extensions": [
+      {
+        "name": "discount",
+        "extends": ["checkout.request", "checkout.response"]
+      }
+    ]
   }
 }
 ```
+
+The `extends` field indicates this extension adds fields to both:
+- **checkout.request** — The `discounts.codes` array for submitting discount codes
+- **checkout.response** — The `discounts.applied` array with rich discount data
 
 ---
 
@@ -256,9 +266,10 @@ Applied discounts are reflected in the core checkout fields:
 ```json
 {
   "id": "checkout_session_123",
-  "protocol": {
-    "version": "2026-01-27",
-    "extensions": ["discount"]
+  "seller_capabilities": {
+    "extensions": [
+      {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
+    ]
   },
   "discounts": {
     "codes": ["SAVE10"],

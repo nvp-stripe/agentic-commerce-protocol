@@ -15,11 +15,12 @@
 
   "response": {
     "id": "checkout_session_stacked789",
-    "protocol": {
-      "version": "2026-01-27",
-      "extensions": ["discount"]
-    },
     "status": "ready_for_payment",
+    "seller_capabilities": {
+      "extensions": [
+        {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
+      ]
+    },
     "currency": "usd",
     "buyer": {
       "email": "loyal-customer@example.com",
