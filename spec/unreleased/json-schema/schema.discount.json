@@ -123,7 +123,7 @@
         "method": {
           "type": "string",
           "enum": ["each", "across"],
-          "description": "Allocation method. 'each' = applied independently per item. 'across' = split proportionally by value."
+          "description": "Allocation method. 'each' = applied independently per item (allocations typically included). 'across' = applied to order total (allocations typically omitted)."
         },
         "priority": {
           "type": "integer",
@@ -134,6 +134,27 @@
           "type": "array",
           "items": { "$ref": "#/$defs/allocation" },
           "description": "Breakdown of where this discount was allocated. Sum of allocation amounts equals total amount."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "rejected_discount": {
+      "type": "object",
+      "description": "A discount code that could not be applied, with the reason.",
+      "required": ["code", "reason"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "The discount code that was rejected."
+        },
+        "reason": {
+          "$ref": "#/$defs/discount_error_codes",
+          "description": "Error code indicating why the discount was rejected."
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable explanation of why the code was rejected."
         }
       },
       "additionalProperties": false
@@ -154,7 +175,7 @@
 
     "discounts_response": {
       "type": "object",
-      "description": "Discount codes input and applied discounts output in checkout responses.",
+      "description": "Discount codes input, applied discounts, and rejected codes in checkout responses.",
       "properties": {
         "codes": {
           "type": "array",
@@ -165,6 +186,11 @@
           "type": "array",
           "items": { "$ref": "#/$defs/applied_discount" },
           "description": "Discounts successfully applied (code-based and automatic)."
+        },
+        "rejected": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/rejected_discount" },
+          "description": "Discount codes that could not be applied, with reasons."
         }
       },
       "additionalProperties": false

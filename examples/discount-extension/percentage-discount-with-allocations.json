@@ -16,7 +16,7 @@
   "response": {
     "id": "checkout_session_def456",
     "status": "ready_for_payment",
-    "seller_capabilities": {
+    "capabilities": {
       "extensions": [
         {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
       ]

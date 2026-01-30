@@ -15,7 +15,7 @@
   "response": {
     "id": "checkout_session_reject456",
     "status": "ready_for_payment",
-    "seller_capabilities": {
+    "capabilities": {
       "extensions": [
         {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
       ]
@@ -51,6 +51,13 @@
             "duration": "once"
           },
           "amount": 1000
+        }
+      ],
+      "rejected": [
+        {
+          "code": "EXPIRED50",
+          "reason": "discount_code_expired",
+          "message": "Code 'EXPIRED50' expired on December 1, 2025 and could not be applied."
         }
       ]
     },

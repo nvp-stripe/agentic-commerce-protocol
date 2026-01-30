@@ -16,8 +16,8 @@ is the **Discount Extension**.
 
 - Provide a **standardized extension mechanism** for ACP that enables optional
   capabilities without breaking backward compatibility.
-- Integrate with the existing **capability negotiation** pattern, using
-  `agent_capabilities` and `seller_capabilities` for discovery.
+- Integrate with the existing **capability negotiation** pattern, using the
+  unified `capabilities` object for discovery.
 - Enable **schema clarity** so platforms know which parts of the API each
   extension affects.
 - Define a **Discount Extension** as the first implementation, delivering
@@ -46,10 +46,13 @@ standardized patterns for:
 ### 2.2 Integration with Capability Negotiation
 
 Extensions integrate with the existing capability negotiation system (see
-[Capability Negotiation](../examples/2026-01-16/examples.capability_negotiation.json)):
+[RFC: Capability Negotiation](./rfc.capability_negotiation.md)):
 
-- Agents declare supported extensions in `agent_capabilities.extensions`
-- Merchants respond with active extensions in `seller_capabilities.extensions`
+- Agents declare supported extensions in request `capabilities.extensions`
+- Merchants respond with active extensions in response `capabilities.extensions`
+
+The same `capabilities` object is used for both requests and responses; context
+determines which party is declaring.
 
 ### 2.3 Discount Extension
 
@@ -64,16 +67,16 @@ The Discount Extension enhances the existing `coupons` array with:
 
 ## 3. Extension Declaration
 
-### 3.1 Seller Capabilities
+### 3.1 Response Format
 
-Merchants advertise extension support in the checkout response via the
-`seller_capabilities.extensions` array:
+Merchants advertise extension support in the checkout response via
+`capabilities.extensions`:
 
 ```json
 {
   "id": "checkout_session_123",
   "status": "ready_for_payment",
-  "seller_capabilities": {
+  "capabilities": {
     "payment_methods": ["card"],
     "extensions": [
       {
@@ -85,14 +88,14 @@ Merchants advertise extension support in the checkout response via the
 }
 ```
 
-### 3.2 Agent Capabilities
+### 3.2 Request Format
 
 Agents **MAY** indicate which extensions they support in the request:
 
 ```json
 {
   "line_items": [{"id": "item_123", "quantity": 1}],
-  "agent_capabilities": {
+  "capabilities": {
     "extensions": ["discount", "loyalty"]
   }
 }
@@ -103,7 +106,7 @@ those extensions if available.
 
 ### 3.3 Extension Object
 
-Each extension in `seller_capabilities.extensions` is an object:
+Each extension in the response `capabilities.extensions` is an object:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -165,15 +168,15 @@ sequenceDiagram
     participant Agent
     participant Merchant
     
-    Agent->>Merchant: POST /checkout_sessions<br/>agent_capabilities.extensions: ["discount"]
-    Merchant->>Agent: 201 Created<br/>seller_capabilities.extensions: [{name: "discount", extends: [...]}]
+    Agent->>Merchant: POST /checkout_sessions<br/>capabilities.extensions: ["discount"]
+    Merchant->>Agent: 201 Created<br/>capabilities.extensions: [{name: "discount", extends: [...]}]
     Note over Agent: Agent now knows discount<br/>extension is active
 ```
 
-1. **Agent Request**: Agent sends `agent_capabilities.extensions` listing
+1. **Agent Request**: Agent sends `capabilities.extensions` listing
    extensions it understands.
 
-2. **Merchant Response**: Merchant includes `seller_capabilities.extensions`
+2. **Merchant Response**: Merchant includes `capabilities.extensions`
    with active extension objects for this session.
 
 3. **Schema Resolution**: Agent interprets response using base schema
@@ -181,7 +184,7 @@ sequenceDiagram
 
 ### 4.1 Backward Compatibility
 
-- The `extensions` array in `seller_capabilities` is **OPTIONAL**
+- The `extensions` array in `capabilities` is **OPTIONAL**
 - Merchants not supporting extensions omit the array
 - Agents **MUST** handle responses with or without extensions
 - Extension-specific fields are ignored by clients that don't support them
@@ -253,7 +256,7 @@ use the same YYYY-MM-DD format:
 
 ```json
 {
-  "seller_capabilities": {
+  "capabilities": {
     "extensions": [
       {"name": "discount@2026-01-27", "extends": ["checkout.request", "checkout.response"]}
     ]
@@ -287,9 +290,9 @@ See the following files for the reference implementation:
 
 ## 9. Conformance Checklist
 
-- [ ] Supports `seller_capabilities.extensions` array in checkout responses
+- [ ] Supports `capabilities.extensions` array in checkout responses
 - [ ] Returns extension objects with `name` and optional `extends` field
-- [ ] Handles `agent_capabilities.extensions` in requests (optional)
+- [ ] Handles `capabilities.extensions` in requests (optional)
 - [ ] Ignores unknown extension fields gracefully
 - [ ] Validates extension-specific inputs
 - [ ] Returns extension-specific error codes in `messages[]`

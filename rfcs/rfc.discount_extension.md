@@ -49,12 +49,12 @@ This extension introduces:
 
 ## 3. Extension Declaration
 
-Merchants advertise discount support via the `seller_capabilities.extensions`
-array in checkout responses:
+Merchants advertise discount support via `capabilities.extensions` in checkout
+responses:
 
 ```json
 {
-  "seller_capabilities": {
+  "capabilities": {
     "payment_methods": ["card"],
     "extensions": [
       {
@@ -68,7 +68,7 @@ array in checkout responses:
 
 The `extends` field indicates this extension adds fields to both:
 - **checkout.request** — The `discounts.codes` array for submitting discount codes
-- **checkout.response** — The `discounts.applied` array with rich discount data
+- **checkout.response** — The `discounts.applied` and `discounts.rejected` arrays
 
 ---
 
@@ -82,6 +82,7 @@ When this extension is active, checkout is extended with a `discounts` object.
 |-------|------|---------|----------|-------------|
 | `codes` | string[] | Optional | Echo | Discount codes to apply. Case-insensitive. Replaces previously submitted codes. |
 | `applied` | AppliedDiscount[] | Omit | Required | Discounts successfully applied (code-based and automatic). |
+| `rejected` | RejectedDiscount[] | Omit | Optional | Discount codes that could not be applied, with reasons. |
 
 ### 4.2 Applied Discount
 
@@ -124,6 +125,17 @@ Breakdown of how a discount amount was allocated to a specific target:
 | `path` | string | Yes | JSONPath to the allocation target (e.g., `$.line_items[0]`) |
 | `amount` | integer | Yes | Amount allocated to this target in minor currency units |
 
+### 4.5 Rejected Discount
+
+When a submitted discount code cannot be applied, it appears in the `rejected`
+array with the reason:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `code` | string | Yes | The discount code that was rejected |
+| `reason` | string | Yes | Error code indicating why (see Section 7.1) |
+| `message` | string | No | Human-readable explanation |
+
 ---
 
 ## 5. Allocation Details
@@ -132,10 +144,14 @@ Breakdown of how a discount amount was allocated to a specific target:
 
 The `method` field indicates how the discount was calculated:
 
-| Method | Meaning | Example |
-|--------|---------|---------|
-| `each` | Applied independently per eligible item | "10% off each item" → 10% × item price |
-| `across` | Split proportionally by value | "$10 off order" → $6 to $60 item, $4 to $40 item |
+| Method | Meaning | Allocations |
+|--------|---------|-------------|
+| `each` | Applied independently per eligible item | Typically included to show per-item breakdown |
+| `across` | Applied to order total | Typically omitted (applies to total, not items) |
+
+**Example:**
+- `each`: "10% off each item" → 10% calculated per item, allocations show breakdown
+- `across`: "$5 off order" → $5 off the total, no item-level breakdown needed
 
 ### 5.2 Stacking Order
 
@@ -179,15 +195,35 @@ Discount codes are submitted via standard checkout create/update operations.
 ### 6.2 Response Behavior
 
 - `discounts.applied` contains all active discounts (code-based + automatic)
-- Rejected codes communicated via `messages[]` (see below)
+- `discounts.rejected` contains codes that could not be applied, with reasons
+- Rejected codes **SHOULD** also be surfaced via `messages[]` for user visibility
 - Discount amounts reflected in `totals[]` and `line_items[].discount`
 
 ---
 
 ## 7. Rejected Codes
 
-When a submitted discount code cannot be applied, merchants communicate this
-via the `messages[]` array:
+When a submitted discount code cannot be applied, merchants include it in the
+`discounts.rejected` array:
+
+```json
+{
+  "discounts": {
+    "codes": ["SAVE10", "EXPIRED50"],
+    "applied": [...],
+    "rejected": [
+      {
+        "code": "EXPIRED50",
+        "reason": "discount_code_expired",
+        "message": "Code 'EXPIRED50' expired on December 1st"
+      }
+    ]
+  }
+}
+```
+
+To ensure users are informed, merchants **SHOULD** also include a message in the
+`messages[]` array:
 
 ```json
 {
@@ -195,9 +231,9 @@ via the `messages[]` array:
     {
       "type": "warning",
       "code": "discount_code_expired",
-      "param": "$.discounts.codes[0]",
+      "param": "$.discounts.codes[1]",
       "content_type": "plain",
-      "content": "Code 'SUMMER20' expired on December 1st"
+      "content": "Code 'EXPIRED50' expired on December 1st"
     }
   ]
 }
@@ -266,7 +302,7 @@ Applied discounts are reflected in the core checkout fields:
 ```json
 {
   "id": "checkout_session_123",
-  "seller_capabilities": {
+  "capabilities": {
     "extensions": [
       {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
     ]
@@ -403,6 +439,13 @@ Applied discounts are reflected in the core checkout fields:
         },
         "amount": 1000
       }
+    ],
+    "rejected": [
+      {
+        "code": "EXPIRED50",
+        "reason": "discount_code_expired",
+        "message": "Code 'EXPIRED50' expired on December 1st"
+      }
     ]
   },
   "messages": [
@@ -453,11 +496,7 @@ Applied discounts are reflected in the core checkout fields:
         },
         "amount": 500,
         "method": "across",
-        "priority": 2,
-        "allocations": [
-          {"path": "$.line_items[0]", "amount": 300},
-          {"path": "$.line_items[1]", "amount": 200}
-        ]
+        "priority": 2
       }
     ]
   }

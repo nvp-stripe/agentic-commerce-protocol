@@ -16,7 +16,7 @@
   "response": {
     "id": "checkout_session_stacked789",
     "status": "ready_for_payment",
-    "seller_capabilities": {
+    "capabilities": {
       "extensions": [
         {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
       ]
@@ -89,11 +89,7 @@
           },
           "amount": 500,
           "method": "across",
-          "priority": 2,
-          "allocations": [
-            {"path": "$.line_items[0]", "amount": 300},
-            {"path": "$.line_items[1]", "amount": 200}
-          ]
+          "priority": 2
         }
       ]
     },

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agentic-commerce-protocol.com/schemas/extension.json",
   "title": "ACP Extension Schema",
-  "description": "Schema definitions for the ACP Extensions Framework. Extensions are optional, composable capabilities declared in seller_capabilities.extensions.",
+  "description": "Schema definitions for the ACP Extensions Framework. Extensions are optional, composable capabilities declared in capabilities.extensions.",
 
   "$defs": {
     "extension_identifier": {
@@ -24,7 +24,7 @@
 
     "extension_declaration": {
       "type": "object",
-      "description": "Extension declaration in seller_capabilities.extensions. Describes an active extension and which API surfaces it affects.",
+      "description": "Extension declaration in capabilities.extensions (response). Describes an active extension and which API surfaces it affects.",
       "required": ["name"],
       "properties": {
         "name": {
@@ -53,22 +53,22 @@
       "additionalProperties": false
     },
 
-    "agent_extensions": {
+    "request_extensions": {
       "type": "array",
       "items": {
         "$ref": "#/$defs/extension_identifier"
       },
       "uniqueItems": true,
-      "description": "Extensions the agent understands. Sent in agent_capabilities.extensions."
+      "description": "Extensions the agent understands. Sent in request capabilities.extensions."
     },
 
-    "seller_extensions": {
+    "response_extensions": {
       "type": "array",
       "items": {
         "$ref": "#/$defs/extension_declaration"
       },
       "uniqueItems": true,
-      "description": "Active extensions for this session. Returned in seller_capabilities.extensions."
+      "description": "Active extensions for this session. Returned in response capabilities.extensions."
     },
 
     "extension_metadata": {

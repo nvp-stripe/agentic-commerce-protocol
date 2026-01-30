@@ -14,13 +14,17 @@ Demonstrates a percentage discount (20% off) with detailed `allocations` showing
 Shows an automatic discount applied by the merchant without any code input. In this example, free shipping is automatically applied when the order exceeds $50.
 
 ### [rejected-discount-code.json](./rejected-discount-code.json)
-Demonstrates how rejected discount codes are communicated via the `messages[]` array while still applying valid codes. One code succeeds (`SAVE10`), one is rejected as expired (`EXPIRED50`).
+Demonstrates how rejected discount codes are communicated via:
+- The `discounts.rejected` array with the code and reason
+- The `messages[]` array to surface warnings to users
+
+One code succeeds (`SAVE10`), one is rejected as expired (`EXPIRED50`).
 
 ### [stacked-discounts.json](./stacked-discounts.json)
 Complex example showing multiple discounts stacked together with:
 - Priority ordering (which discount is calculated first)
 - Different allocation methods (`each` vs `across`)
-- Detailed allocation breakdowns for each discount
+- `each` discounts include allocations; `across` discounts apply to order total
 
 ## Key Concepts
 
@@ -38,7 +42,7 @@ Complex example showing multiple discounts stacked together with:
 
 ```json
 {
-  "seller_capabilities": {
+  "capabilities": {
     "extensions": [
       {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
     ]
@@ -57,6 +61,13 @@ Complex example showing multiple discounts stacked together with:
         "amount": 1000,
         "allocations": [...]
       }
+    ],
+    "rejected": [
+      {
+        "code": "DISCOUNT_CODE_2",
+        "reason": "discount_code_expired",
+        "message": "Code expired on December 1st"
+      }
     ]
   }
 }
@@ -64,10 +75,10 @@ Complex example showing multiple discounts stacked together with:
 
 ### Allocation Methods
 
-| Method | Description |
-|--------|-------------|
-| `each` | Discount calculated independently for each item |
-| `across` | Discount split proportionally by value across items |
+| Method | Description | Allocations |
+|--------|-------------|-------------|
+| `each` | Discount calculated independently for each item | Typically included |
+| `across` | Discount applied to order total | Typically omitted |
 
 ### Priority Ordering
 
