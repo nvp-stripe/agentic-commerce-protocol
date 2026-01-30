@@ -78,6 +78,11 @@ The `extends` field uses JSONPath expressions to identify the exact fields added
 | `$.CheckoutSessionUpdateRequest.discounts` | Adds `discounts.codes` to update requests |
 | `$.CheckoutSession.discounts` | Adds `discounts.applied` and `discounts.rejected` to responses |
 
+Merchants **MAY** also include the optional `schema` field with a URL to the
+JSON Schema defining the `discounts` object. For core ACP extensions, this is
+optional since the schema is defined in the specification. For third-party
+extensions, providing a schema URL is recommended.
+
 ---
 
 ## 4. Schema
@@ -319,7 +324,8 @@ Applied discounts are reflected in the core checkout fields:
           "$.CheckoutSessionCreateRequest.discounts",
           "$.CheckoutSessionUpdateRequest.discounts",
           "$.CheckoutSession.discounts"
-        ]
+        ],
+        "schema": "https://agenticcommerce.dev/schemas/discount/2026-01-27.json"
       }
     ]
   },

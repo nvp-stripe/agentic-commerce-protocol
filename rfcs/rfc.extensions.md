@@ -170,7 +170,59 @@ The discount extension adds a `discounts` field to requests and responses:
 This tells consumers exactly which schema definitions are extended and which
 fields are added, enabling automated schema composition.
 
-### 3.5 Extension Identifiers
+### 3.5 The `schema` Field
+
+The optional `schema` field provides a URL to a JSON Schema that defines the
+structure of the fields added by the extension. This enables:
+
+- **Runtime validation** — Consumers can validate extension data against the schema
+- **SDK generation** — Tooling can generate typed clients from the schema
+- **Documentation** — The schema serves as machine-readable documentation
+- **Interoperability** — Third-party extensions can be validated without prior knowledge
+
+#### 3.5.1 When to Include
+
+| Scenario | Include `schema`? |
+|----------|-------------------|
+| Core ACP extensions (e.g., `discount`) | Optional — schema is part of the ACP spec |
+| Third-party extensions | **Recommended** — enables validation and tooling |
+| Custom merchant extensions | **Recommended** — enables agent compatibility |
+
+#### 3.5.2 Schema URL Requirements
+
+- **MUST** be a valid HTTPS URL
+- **SHOULD** return a valid JSON Schema (draft-07 or later)
+- **SHOULD** be publicly accessible or accessible to authorized consumers
+- **MAY** include versioning in the URL path
+
+#### 3.5.3 Example with Schema
+
+```json
+{
+  "name": "discount",
+  "extends": [
+    "$.CheckoutSessionCreateRequest.discounts",
+    "$.CheckoutSessionUpdateRequest.discounts",
+    "$.CheckoutSession.discounts"
+  ],
+  "schema": "https://agenticcommerce.dev/schemas/discount/2026-01-27.json"
+}
+```
+
+For third-party extensions, the schema URL is especially important:
+
+```json
+{
+  "name": "com.merchant.loyalty-program",
+  "extends": [
+    "$.CheckoutSession.loyalty"
+  ],
+  "schema": "https://merchant.com/schemas/loyalty-extension.json",
+  "spec": "https://merchant.com/docs/loyalty-extension"
+}
+```
+
+### 3.6 Extension Identifiers
 
 Extension identifiers are lowercase strings. Core ACP extensions use simple names:
 

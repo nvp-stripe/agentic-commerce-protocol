@@ -91,6 +91,23 @@ The `extends` field uses JSONPath expressions to precisely identify which schema
 | `$.CheckoutSessionUpdateRequest.discounts` | Adds `discounts` to update requests |
 | `$.CheckoutSession.discounts` | Adds `discounts` to session responses |
 
+### The `schema` Field (Optional)
+
+The optional `schema` field provides a URL to a JSON Schema defining the structure of the extension's added fields:
+
+```json
+{
+  "name": "discount",
+  "extends": ["$.CheckoutSession.discounts"],
+  "schema": "https://agenticcommerce.dev/schemas/discount/2026-01-27.json"
+}
+```
+
+This enables:
+- **Runtime validation** of extension data
+- **SDK generation** from the schema
+- **Interoperability** with unknown extensions
+
 ### Allocation Methods
 
 | Method | Description | Allocations |

@@ -24,7 +24,8 @@
             "$.CheckoutSessionCreateRequest.discounts",
             "$.CheckoutSessionUpdateRequest.discounts",
             "$.CheckoutSession.discounts"
-          ]
+          ],
+          "schema": "https://agenticcommerce.dev/schemas/discount/2026-01-27.json"
         }
       ]
     },
