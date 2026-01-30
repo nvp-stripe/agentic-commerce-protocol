@@ -16,6 +16,7 @@
     "id": "checkout_session_reject456",
     "status": "ready_for_payment",
     "capabilities": {
+      "payment_methods": ["card"],
       "extensions": [
         {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
       ]

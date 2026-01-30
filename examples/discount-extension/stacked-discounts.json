@@ -17,6 +17,7 @@
     "id": "checkout_session_stacked789",
     "status": "ready_for_payment",
     "capabilities": {
+      "payment_methods": ["card"],
       "extensions": [
         {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
       ]
@@ -124,7 +125,7 @@
     ],
     "allocation_method": [
       "SUMMER20 uses 'each' method: 20% calculated on each item independently",
-      "LOYALTY5 uses 'across' method: $5 split proportionally by value"
+      "LOYALTY5 uses 'across' method: $5 applied to order total (no item-level breakdown)"
     ]
   }
 }

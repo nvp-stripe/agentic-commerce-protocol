@@ -301,6 +301,55 @@
         },
         "interventions": {
           "$ref": "#/$defs/InterventionCapabilities"
+        },
+        "extensions": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": { "type": "string" },
+              "uniqueItems": true,
+              "description": "Extensions the agent understands (request). Simple identifiers like 'discount'."
+            },
+            {
+              "type": "array",
+              "items": { "$ref": "#/$defs/ExtensionDeclaration" },
+              "uniqueItems": true,
+              "description": "Active extensions for this session (response). Objects with name, extends, schema, spec."
+            }
+          ],
+          "description": "Extensions supported by the party. Requests: array of extension identifiers. Responses: array of extension declaration objects."
+        }
+      }
+    },
+    "ExtensionDeclaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Extension declaration in capabilities.extensions (response). Describes an active extension and which API surfaces it affects.",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*(@\\d{4}-\\d{2}-\\d{2})?$|^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9_-]*)+(@\\d{4}-\\d{2}-\\d{2})?$",
+          "description": "Unique identifier for the extension."
+        },
+        "extends": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["checkout.request", "checkout.response", "checkout.complete.request", "checkout.complete.response"]
+          },
+          "uniqueItems": true,
+          "description": "Which parts of the API this extension affects."
+        },
+        "schema": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the extension's JSON Schema definition."
+        },
+        "spec": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the extension's specification document."
         }
       }
     },
@@ -973,24 +1022,13 @@
     "ProtocolVersion": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Protocol metadata included in checkout responses. Indicates the ACP version and active extensions.",
+      "description": "Protocol metadata included in checkout responses. Indicates the ACP version.",
       "properties": {
         "version": {
           "type": "string",
           "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
           "example": "2026-01-27",
           "description": "ACP protocol version in YYYY-MM-DD format."
-        },
-        "capabilities": {
-          "type": "array",
-          "items": { "type": "string" },
-          "description": "List of supported capabilities."
-        },
-        "extensions": {
-          "type": "array",
-          "items": { "type": "string" },
-          "uniqueItems": true,
-          "description": "List of active extension identifiers for this session. Core extensions use simple names (e.g., 'discount'). Third-party extensions use reverse-domain naming (e.g., 'com.example.custom')."
         }
       },
       "required": ["version"]

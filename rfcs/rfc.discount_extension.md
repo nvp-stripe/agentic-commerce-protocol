@@ -303,6 +303,7 @@ Applied discounts are reflected in the core checkout fields:
 {
   "id": "checkout_session_123",
   "capabilities": {
+    "payment_methods": ["card"],
     "extensions": [
       {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
     ]

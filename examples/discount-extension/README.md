@@ -43,6 +43,7 @@ Complex example showing multiple discounts stacked together with:
 ```json
 {
   "capabilities": {
+    "payment_methods": ["card"],
     "extensions": [
       {"name": "discount", "extends": ["checkout.request", "checkout.response"]}
     ]
