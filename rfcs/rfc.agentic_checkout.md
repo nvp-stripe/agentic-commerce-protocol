@@ -560,7 +560,7 @@ If the session is in `authentication_required` state, a client MUST include `aut
   "selected_fulfillment_options": [
     {
       "type": "shipping",
-      "option_id": "fulfillment_option_123",
+      "option_id": "fulfillment_option_456",
       "item_ids": ["item_456"]
     }
   ],
@@ -572,8 +572,8 @@ If the session is in `authentication_required` state, a client MUST include `aut
     },
     { "type": "subtotal", "display_text": "Subtotal", "amount": 300 },
     { "type": "tax", "display_text": "Tax", "amount": 30 },
-    { "type": "fulfillment", "display_text": "Fulfillment", "amount": 100 },
-    { "type": "total", "display_text": "Total", "amount": 430 }
+    { "type": "fulfillment", "display_text": "Fulfillment", "amount": 500 },
+    { "type": "total", "display_text": "Total", "amount": 830 }
   ],
   "fulfillment_options": [
     {
@@ -655,8 +655,8 @@ If a client calls `POST /checkout_sessions/{id}/complete` while `session.status 
     },
     { "type": "subtotal", "display_text": "Subtotal", "amount": 300 },
     { "type": "tax", "display_text": "Tax", "amount": 30 },
-    { "type": "fulfillment", "display_text": "Fulfillment", "amount": 100 },
-    { "type": "total", "display_text": "Total", "amount": 430 }
+    { "type": "fulfillment", "display_text": "Fulfillment", "amount": 500 },
+    { "type": "total", "display_text": "Total", "amount": 830 }
   ],
   "messages": [
     {

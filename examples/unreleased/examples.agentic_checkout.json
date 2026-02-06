@@ -518,7 +518,7 @@
     "selected_fulfillment_options": [
       {
         "type": "shipping",
-        "option_id": "fulfillment_option_123",
+        "option_id": "fulfillment_option_456",
         "item_ids": ["item_123"]
       }
     ],
@@ -541,12 +541,12 @@
       {
         "type": "fulfillment",
         "display_text": "Fulfillment",
-        "amount": 100
+        "amount": 500
       },
       {
         "type": "total",
         "display_text": "Total",
-        "amount": 430
+        "amount": 830
       }
     ],
     "fulfillment_options": [
@@ -803,7 +803,7 @@
     "selected_fulfillment_options": [
       {
         "type": "shipping",
-        "option_id": "fulfillment_option_123",
+        "option_id": "fulfillment_option_456",
         "item_ids": ["item_123"]
       }
     ],
@@ -826,12 +826,12 @@
       {
         "type": "fulfillment",
         "display_text": "Fulfillment",
-        "amount": 100
+        "amount": 500
       },
       {
         "type": "total",
         "display_text": "Total",
-        "amount": 430
+        "amount": 830
       }
     ],
     "fulfillment_options": [
