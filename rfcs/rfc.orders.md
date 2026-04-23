@@ -462,7 +462,32 @@ Order with a software license delivered digitally:
 
 ---
 
-## 6. Webhook Events
+## 6. Order Retrieval API
+
+### 6.1 GET /orders/{order_id}
+
+Returns the current-state snapshot of an order. The response is the full `Order`
+object — the same schema used in webhook payloads.
+
+| Aspect | Detail |
+|--------|--------|
+| Method | `GET` |
+| Path | `/orders/{order_id}` |
+| Auth | Bearer token (same as checkout session endpoints) |
+| Response | `200` with full `Order` object, or `404` if not found |
+
+This endpoint complements the webhook push model. Use cases:
+
+- **Reconciliation** — Verify order state if a webhook was missed or delayed
+- **On-demand status** — Agent checks order status in response to a buyer question
+- **Recovery** — Re-sync after a consumer restart or outage
+
+The response is always a **current-state snapshot** (not incremental deltas),
+identical in shape to what webhooks deliver.
+
+---
+
+## 7. Webhook Events
 
 Order updates are sent via the existing Order webhook mechanism. When sending
 order updates, merchants MUST include the full order object (not incremental
@@ -484,7 +509,7 @@ supported mechanism for representing refunds, credits, returns, disputes, and
 other post-order changes in webhook payloads.
 
 Existing integrations that previously used `refunds[]` MUST migrate to
-`adjustments[]` with `type: "refund"` or `type: "store_credit"` as appropriate.
+`adjustments[]` with `type: "refund"` or `type: "credit"` as appropriate.
 
 ---
 
@@ -527,6 +552,7 @@ An empty `adjustments: []` array means no post-order changes have occurred.
 
 ## 8. Change Log
 
+- **2026-04-23**: Add GET /orders/{order_id} endpoint for on-demand order retrieval
 - **2026-04-23**: Post-checkout alignment — 3-field quantity model (`ordered`/`current`/`fulfilled`), line item status (`processing`/`partial`/`fulfilled`/`removed`), order status `delivered`→`completed`, fulfillment event types (add `canceled`/`undeliverable`, rename `returned`→`returned_to_sender`), adjustment types (merge `refund`+`partial_refund`, rename `store_credit`→`credit`, add `price_adjustment`, merge `chargeback` into `dispute`)
 - **2026-02-11**: Totals alignment — Replaced flat `OrderTotals` object with `Total[]` array (reusing checkout spec's `Total` schema); added `amount_refunded` to `Total.type` enum
 - **2026-02-10**: Review feedback — Extended Order.status enum (`created`, `manual_review`); added `amount_refunded` to OrderTotals; documented `total` as original charge amount; added `digital_delivery` sub-object to Fulfillment; added `ready_for_pickup` status; documented per-type status applicability; clarified `Adjustment.amount` as tax-inclusive; updated webhook spec to compose Order via `$ref`; removed `refunds[]` in favor of `adjustments[]`

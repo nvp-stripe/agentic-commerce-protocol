@@ -12,6 +12,8 @@ security:
 tags:
   - name: CheckoutSessions
     description: Create and manage checkout sessions
+  - name: Orders
+    description: Retrieve order state after checkout completion
 paths:
   /checkout_sessions:
     post:
@@ -371,6 +373,78 @@ paths:
           $ref: "#/components/responses/IdempotencyInFlight"
         "422":
           $ref: "#/components/responses/IdempotencyConflict"
+  /orders/{order_id}:
+    parameters:
+      - $ref: "#/components/parameters/Authorization"
+      - $ref: "#/components/parameters/AcceptLanguage"
+      - $ref: "#/components/parameters/UserAgent"
+      - $ref: "#/components/parameters/RequestId"
+      - $ref: "#/components/parameters/APIVersion"
+      - name: order_id
+        in: path
+        required: true
+        description: Unique identifier for the order (returned in the checkout session completion response)
+        schema:
+          type: string
+    get:
+      tags:
+        - Orders
+      summary: Retrieve an order
+      operationId: getOrder
+      description: |
+        Returns the current-state snapshot of an order. The response contains the full Order
+        object including line items, fulfillments, adjustments, and totals.
+
+        This endpoint enables agents to poll for order state on demand, complementing the
+        webhook-based push model. Useful for reconciliation, on-demand status checks, and
+        recovery after missed webhooks.
+      responses:
+        "200":
+          description: Current order state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+              example:
+                id: ord_abc123
+                checkout_session_id: cs_def456
+                permalink_url: "https://merchant.example.com/orders/ord_abc123"
+                order_number: "ORD-2026-00123"
+                status: processing
+                line_items:
+                  - id: li_shoes
+                    title: "Running Shoes"
+                    quantity: { ordered: 2, current: 2, fulfilled: 0 }
+                    unit_price: 12900
+                    subtotal: 25800
+                    status: processing
+                totals:
+                  - { type: subtotal, display_text: "Subtotal", amount: 25800 }
+                  - { type: fulfillment, display_text: "Shipping", amount: 500 }
+                  - { type: tax, display_text: "Tax", amount: 2171 }
+                  - { type: total, display_text: "Total", amount: 28471 }
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                type: invalid_request
+                code: not_found
+                message: "Order not found"
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        5XX:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   securitySchemes:
     bearerAuth:
